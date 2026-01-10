@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ScorePulse - Top 10 Players</title>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.15.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.15.0/firebase-database.js"></script>
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, sans-serif;
+    }
+
+    body {
+        background: #1c1c1c;
+        color: #ffffff;
+        display: flex;
+        justify-content: center;
+        padding: 40px 20px;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 900px;
+    }
+
+    h1 {
+        text-align: center;
+        font-size: 52px;
+        color: #6dffb3;
+        margin-bottom: 10px;
+    }
+
+    .subtitle {
+        text-align: center;
+        color: #b5b5b5;
+        font-size: 18px;
+        margin-bottom: 40px;
+    }
+
+    .leaderboard {
+        background: #1f1f1f;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #2f4f4f;
+    }
+
+    .leaderboard-header,
+    .leaderboard-row {
+        display: grid;
+        grid-template-columns: 80px 1fr 140px;
+        align-items: center;
+        padding: 18px 24px;
+    }
+
+    .leaderboard-header {
+        color: #7fffe0;
+        font-weight: 600;
+        border-bottom: 1px solid #2a2a2a;
+    }
+
+    .leaderboard-row {
+        border-bottom: 1px solid #2a2a2a;
+    }
+
+    .leaderboard-row:last-child {
+        border-bottom: none;
+    }
+
+    .rank {
+        font-size: 20px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .crown {
+        color: gold;
+        font-size: 22px;
+    }
+
+    .player {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: #444;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #fff;
+    }
+
+    .score {
+        text-align: right;
+        font-size: 20px;
+        color: #7fffe0;
+        font-weight: 600;
+    }
+    .leaderboard-row {
+    transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.leaderboard-row:hover {
+    background: rgba(127, 255, 224, 0.06);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0, 255, 200, 0.12);
+}
+
+.player .avatar {
+    transition: transform 0.3s ease;
+}
+
+.leaderboard-row:hover .avatar {
+    transform: scale(1.15) rotate(3deg);
+}
+
+.score {
+    transition: color 0.3s ease;
+}
+
+.leaderboard-row:hover .score {
+    color: #6dffb3;
+}
+
+</style>
+</head>
+<script>
+  // 🔹 Step 3.1: Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyCHk5MLqaHUi7oS4mQHWiWJIMXNIi-Bbqo",
+  authDomain: "realtimeleaderboardar.firebaseapp.com",
+  databaseURL: "https://realtimeleaderboardar-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "realtimeleaderboardar",
+  storageBucket: "realtimeleaderboardar.firebasestorage.app",
+  messagingSenderId: "665391270157",
+  appId: "1:665391270157:web:37596a0b3f7b94f04ac844"
+};
+
+  // Initialize Firebase
+  const app = firebase.initializeApp(firebaseConfig);
+  const database = firebase.database();
+
+  // 🔹 Step 3.2: Fetch top 10 leaderboard scores
+  const leaderboardRef = database.ref('leaderboard');
+
+  leaderboardRef.orderByChild('score').limitToLast(10).on('value', snapshot => {
+    const leaderboard = [];
+    snapshot.forEach(child => leaderboard.push(child.val()));
+
+    // Sort descending by score
+    leaderboard.sort((a, b) => b.score - a.score);
+
+    const container = document.querySelector('.leaderboard');
+
+    // Remove old rows except header
+    container.querySelectorAll('.leaderboard-row:not(:first-child)').forEach(row => row.remove());
+
+    // Add new rows dynamically
+    leaderboard.forEach((entry, index) => {
+      const row = document.createElement('div');
+      row.className = 'leaderboard-row';
+      const crown = index === 0 ? ' <span class="crown">👑</span>' : '';
+      row.innerHTML = `
+        <div class="rank">${index + 1}${crown}</div>
+        <div class="player">
+          <div class="avatar" style="background:#${Math.floor(Math.random()*16777215).toString(16)};">
+            ${entry.name.charAt(0).toUpperCase()}
+          </div>
+          ${entry.name}
+        </div>
+        <div class="score">${entry.score.toLocaleString()}</div>
+      `;
+      container.appendChild(row);
+    });
+  });
+</script>
+
+<body>
+
+<div class="container">
+    <h1>ScorePulse</h1>
+    <p class="subtitle">
+        Witness the epic climb to the top. The leaderboard updates in real-time as players battle for supremacy.
+    </p>
+
+    <div class="leaderboard">
+        <div class="leaderboard-header">
+            <div>Rank</div>
+            <div>Player</div>
+            <div style="text-align:right;">Score</div>
+        </div>
+
+        <div class="leaderboard-row">
+            <div class="rank">1 <span class="crown">👑</span></div>
+            <div class="player">
+                <div class="avatar" style="background:#6a3df0;">V</div>
+                Vortex
+            </div>
+            <div class="score">10,134</div>
+        </div>
+
+        <div class="leaderboard-row">
+            <div class="rank">2</div>
+            <div class="player">
+                <div class="avatar" style="background:#6b7f87;">N</div>
+                N1ghtmare
+            </div>
+            <div class="score">9,532</div>
+        </div>
+
+        <div class="leaderboard-row">
+            <div class="rank">3</div>
+            <div class="player">
+                <div class="avatar" style="background:#777;">S</div>
+                Shadow
+            </div>
+            <div class="score">9,054</div>
+        </div>
+
+        <div class="leaderboard-row">
+            <div class="rank">4</div>
+            <div class="player">
+                <div class="avatar" style="background:#1e90ff;">R</div>
+                Raptor
+            </div>
+            <div class="score">8,432</div>
+        </div>
+
+        <div class="leaderboard-row">
+            <div class="rank">5</div>
+            <div class="player">
+                <div class="avatar" style="background:#f0b400;">B</div>
+                Blaze
+            </div>
+            <div class="score">7,876</div>
+        </div>
+
+        <div class="leaderboard-row">
+            <div class="rank">6</div>
+            <div class="player">
+                <div class="avatar" style="background:#6ab04c;">C</div>
+                Cypher
+            </div>
+            <div class="score">7,600</div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
