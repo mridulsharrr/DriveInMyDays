@@ -2,94 +2,98 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>ScorePulse - Top 10 Players</title>
-
-<!-- Firebase Compat CDN -->
-<script src="https://www.gstatic.com/firebasejs/10.15.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.15.0/firebase-database-compat.js"></script>
-
-<style>
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
-body { background: #1c1c1c; color: #fff; display: flex; justify-content: center; padding: 40px 20px; }
-.container { width: 100%; max-width: 900px; }
-h1 { text-align: center; font-size: 52px; color: #6dffb3; margin-bottom: 10px; }
-.subtitle { text-align: center; color: #b5b5b5; font-size: 18px; margin-bottom: 40px; }
-.leaderboard { background: #1f1f1f; border-radius: 12px; overflow: hidden; border: 1px solid #2f4f4f; }
-.leaderboard-header, .leaderboard-row { display: grid; grid-template-columns: 80px 1fr 140px; align-items: center; padding: 18px 24px; }
-.leaderboard-header { color: #7fffe0; font-weight: 600; border-bottom: 1px solid #2a2a2a; }
-.leaderboard-row { border-bottom: 1px solid #2a2a2a; transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease; cursor: pointer; }
-.leaderboard-row:last-child { border-bottom: none; }
-.leaderboard-row:hover { background: rgba(127, 255, 224, 0.06); transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0, 255, 200, 0.12); }
-.rank { font-size: 20px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
-.crown { color: gold; font-size: 22px; }
-.player { display: flex; align-items: center; gap: 16px; }
-.avatar { width: 42px; height: 42px; border-radius: 50%; background: #444; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #fff; transition: transform 0.3s ease; }
-.leaderboard-row:hover .avatar { transform: scale(1.15) rotate(3deg); }
-.score { text-align: right; font-size: 20px; color: #7fffe0; font-weight: 600; transition: color 0.3s ease; }
-.leaderboard-row:hover .score { color: #6dffb3; }
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DriveInMyDays Leaderboard</title>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
 <div class="container">
-  <h1>ScorePulse</h1>
-  <p class="subtitle">
-    Witness the epic climb to the top. The leaderboard updates in real-time as players battle for supremacy.
-  </p>
 
-  <div class="leaderboard">
-    <div class="leaderboard-header">
-      <div>Rank</div>
-      <div>Player</div>
-      <div style="text-align:right;">Score</div>
+    <header>
+        <h1>DriveInMyDays</h1>
+        <p>Top players across courses & academic years</p>
+    </header>
+
+    <!-- CONTROLS -->
+<div class="controls glass">
+    <div class="control-group">
+        <input type="text" id="searchInput" placeholder="Search player">
     </div>
-  </div>
+
+    <div class="control-group">
+        <select id="courseFilter">
+            <option value="">All Courses</option>
+            <option value="Game Design">Game Design</option>
+            <option value="Animation">Animation</option>
+            <option value="Fine Arts">Fine Arts</option>
+        </select>
+    </div>
+
+    <div class="control-group">
+        <select id="yearFilter">
+            <option value="">All Years</option>
+            <option value="1st">1st</option>
+            <option value="2nd">2nd</option>
+            <option value="3rd">3rd</option>
+            <option value="4th">4th</option>
+        </select>
+    </div>
 </div>
 
-<script>
-  // 🔹 Replace these with your Firebase project values
-  const firebaseConfig = {
-  apiKey: "AIzaSyCHk5MLqaHUi7oS4mQHWiWJIMXNIi-Bbqo",
-  authDomain: "realtimeleaderboardar.firebaseapp.com",
-  databaseURL: "https://realtimeleaderboardar-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "realtimeleaderboardar",
-  storageBucket: "realtimeleaderboardar.firebasestorage.app",
-  messagingSenderId: "665391270157",
-  appId: "1:665391270157:web:37596a0b3f7b94f04ac844"
-};
 
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
-  const leaderboardRef = db.ref('leaderboard');
+    <!-- LEADERBOARD -->
+    <div class="leaderboard glass" id="leaderboard">
 
-  // Listen to top 10 scores
-  leaderboardRef.orderByChild('score').limitToLast(10).on('value', snapshot => {
-    const container = document.querySelector('.leaderboard');
-    container.querySelectorAll('.leaderboard-row:not(:first-child)').forEach(row => row.remove());
-
-    const leaderboard = [];
-    snapshot.forEach(child => leaderboard.push(child.val()));
-    leaderboard.sort((a,b) => b.score - a.score);
-
-    leaderboard.forEach((entry,index) => {
-      const row = document.createElement('div');
-      row.className = 'leaderboard-row';
-      const crown = index === 0 ? ' <span class="crown">👑</span>' : '';
-      row.innerHTML = `
-        <div class="rank">${index+1}${crown}</div>
-        <div class="player">
-          <div class="avatar" style="background:#${Math.floor(Math.random()*16777215).toString(16)};">
-            ${entry.name.charAt(0).toUpperCase()}
-          </div>
-          ${entry.name}
+        <div class="leaderboard-header">
+            <span>Rank</span>
+            <span>Player</span>
+            <span>Course</span>
+            <span>Year</span>
+            <span class="score-col">Score</span>
         </div>
-        <div class="score">${entry.score.toLocaleString()}</div>
-      `;
-      container.appendChild(row);
-    });
-  });
-</script>
 
+        <!-- ROWS -->
+        <div class="leaderboard-row gold">
+            <span class="rank">#1 🥇</span>
+            <span class="name">Vortex</span>
+            <span class="course">Game Design</span>
+            <span class="year">3rd</span>
+            <span class="score">10134</span>
+        </div>
+
+        <div class="leaderboard-row silver">
+            <span class="rank">#2 🥈</span>
+            <span class="name">N1ghtmare</span>
+            <span class="course">Animation</span>
+            <span class="year">2nd</span>
+            <span class="score">9532</span>
+        </div>
+
+        <div class="leaderboard-row bronze">
+            <span class="rank">#3 🥉</span>
+            <span class="name">Shadow</span>
+            <span class="course">Fine Arts</span>
+            <span class="year">1st</span>
+            <span class="score">9054</span>
+        </div>
+
+        <div class="leaderboard-row">
+            <span class="rank">#4</span>
+            <span class="name">Pixel</span>
+            <span class="course">Animation</span>
+            <span class="year">1st</span>
+            <span class="score">8400</span>
+        </div>
+
+    </div>
+
+    <footer>
+        <span id="lastUpdated">Last updated: --</span>
+    </footer>
+
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
