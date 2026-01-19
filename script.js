@@ -1,115 +1,76 @@
-/* ===============================
-   SCOREPULSE LEADERBOARD SCRIPT
-   =============================== */
+let players = [];
+let isAdmin = false;
 
-/* ---------- SAMPLE DATA (replace later with Google Sheets) ---------- */
-const players = [
-    { name: "Vortex", course: "Game Design", year: "3rd", score: 10134 },
-    { name: "N1ghtmare", course: "Animation", year: "2nd", score: 9532 },
-    { name: "Shadow", course: "Fine Arts", year: "1st", score: 9054 },
-    { name: "Pixel", course: "Animation", year: "1st", score: 8400 }
-];
-
-/* ---------- DOM ELEMENTS ---------- */
-const leaderboard = document.getElementById("leaderboard");
-const searchInput = document.getElementById("searchInput");
-const courseFilter = document.getElementById("courseFilter");
-const yearFilter = document.getElementById("yearFilter");
+const bodyEl = document.getElementById("leaderboardBody");
 const lastUpdated = document.getElementById("lastUpdated");
 
-/* ---------- MEDAL ICONS ---------- */
-function getMedal(index) {
-    if (index === 0) return "🥇";
-    if (index === 1) return "🥈";
-    if (index === 2) return "🥉";
-    return "";
+const addBtn = document.getElementById("addBtn");
+const modal = document.getElementById("playerModal");
+
+const searchInput = document.getElementById("searchInput");
+const deptFilter = document.getElementById("departmentFilter");
+
+// Render leaderboard
+function render() {
+  bodyEl.innerHTML = "";
+
+  let filtered = players
+    .filter(p =>
+      p.name.toLowerCase().includes(searchInput.value.toLowerCase()) &&
+      (deptFilter.value === "" || p.department === deptFilter.value)
+    )
+    .sort((a, b) => b.score - a.score);
+
+  filtered.forEach((p, i) => {
+    const row = document.createElement("div");
+    row.className = "row";
+
+    if (i === 0) row.classList.add("gold");
+    if (i === 1) row.classList.add("silver");
+    if (i === 2) row.classList.add("bronze");
+
+    row.innerHTML = `
+      <span>#${i + 1}</span>
+      <span>${p.name}</span>
+      <span>${p.department}</span>
+      <span>${p.year}</span>
+      <span>${p.score}</span>
+    `;
+
+    bodyEl.appendChild(row);
+  });
+
+  lastUpdated.textContent =
+    "Last updated: " + new Date().toLocaleTimeString();
 }
 
-/* ---------- RENDER LEADERBOARD ---------- */
-function renderLeaderboard(animate = false) {
-    // Always clear previous rows (CRITICAL FIX)
-    leaderboard.innerHTML = "";
-
-    // Apply search & filters
-    let filteredPlayers = players.filter(player => {
-        const matchesSearch =
-            player.name.toLowerCase().includes(searchInput.value.toLowerCase());
-
-        const matchesCourse =
-            courseFilter.value === "" || player.course === courseFilter.value;
-
-        const matchesYear =
-            yearFilter.value === "" || player.year === yearFilter.value;
-
-        return matchesSearch && matchesCourse && matchesYear;
-    });
-
-    // Sort by score (descending)
-    filteredPlayers.sort((a, b) => b.score - a.score);
-
-    // Render rows
-    filteredPlayers.forEach((player, index) => {
-        const row = document.createElement("div");
-        row.className = "leaderboard-row";
-
-        // Top 3 styles
-        if (index === 0) row.classList.add("gold");
-        if (index === 1) row.classList.add("silver");
-        if (index === 2) row.classList.add("bronze");
-
-        row.innerHTML = `
-            <span class="rank">#${index + 1} ${getMedal(index)}</span>
-            <span class="player">${player.name}</span>
-            <span class="course">${player.course}</span>
-            <span class="year">${player.year}</span>
-            <span class="score">${player.score}</span>
-        `;
-
-        // Animate only on first load / manual refresh
-        if (animate) {
-            row.style.animation = "rowReveal 0.45s ease forwards";
-            row.style.animationDelay = `${0.2 + index * 0.08}s`;
-        }
-
-        leaderboard.appendChild(row);
-    });
-
-    // Update timestamp
-    lastUpdated.textContent =
-        "Last updated: " + new Date().toLocaleTimeString();
-}
-
-/* ---------- FILTER EVENTS ---------- */
-searchInput.addEventListener("input", () => renderLeaderboard());
-courseFilter.addEventListener("change", () => renderLeaderboard());
-yearFilter.addEventListener("change", () => renderLeaderboard());
-
-/* ---------- LIVE SCORE SIMULATION ---------- */
-function simulateScoreUpdates() {
-    players.forEach(player => {
-        player.score += Math.floor(Math.random() * 60);
-    });
-}
-
-/* ---------- AUTO REFRESH (LIVE FEEL) ---------- */
-setInterval(() => {
-    simulateScoreUpdates();
-    renderLeaderboard();
-}, 10000);
-
-/* ---------- INITIAL PAGE LOAD ---------- */
-window.addEventListener("load", () => {
-    renderLeaderboard(true);
+// CTRL + A → Admin toggle
+document.addEventListener("keydown", e => {
+  if (e.ctrlKey && e.key.toLowerCase() === "a") {
+    e.preventDefault();
+    isAdmin = !isAdmin;
+    addBtn.classList.toggle("hidden", !isAdmin);
+    modal.classList.add("hidden");
+  }
 });
-/* ---------- LIVE BLINKING TAB BADGE ---------- */
 
-const baseTitle = "driveInMyDays";
-let liveVisible = true;
+addBtn.onclick = () => modal.classList.remove("hidden");
+document.getElementById("cancelBtn").onclick = () => modal.classList.add("hidden");
 
-setInterval(() => {
-    document.title = liveVisible
-        ? "🔴 LIVE | " + baseTitle
-        : baseTitle;
+// Save entry
+document.getElementById("saveBtn").onclick = () => {
+  const name = nameInput.value.trim();
+  const department = deptInput.value;
+  const year = yearInput.value;
+  const score = Number(scoreInput.value);
 
-    liveVisible = !liveVisible;
-}, 1000);
+  if (!name || !department || !year || isNaN(score)) return;
+
+  players.push({ name, department, year, score });
+
+  modal.classList.add("hidden");
+  render();
+};
+
+searchInput.oninput = render;
+deptFilter.onchange = render;

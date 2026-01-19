@@ -1,97 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DriveInMyDays Leaderboard</title>
-<link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <title>ScorePulse Leaderboard</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-<div class="container">
+<header>
+  <h1>🏆 College Leaderboard</h1>
+  <span class="live-badge">LIVE</span>
+  <p id="lastUpdated">Last updated: --:--:--</p>
+</header>
 
-    <header>
-        <h1>DriveInMyDays</h1>
-        <p>Top players across courses & academic years</p>
-    </header>
+<section class="controls">
+  <input id="searchInput" placeholder="Search name..." />
+  <select id="departmentFilter">
+    <option value="">All Departments</option>
+    <option>Game Design</option>
+    <option>Animation</option>
+    <option>Interior Design</option>
+    <option>Fine Arts</option>
+    <option>Fashion Design</option>
+    <option>Faculty</option>
+  </select>
+</section>
 
-    <!-- CONTROLS -->
-<div class="controls glass">
-    <div class="control-group">
-        <input type="text" id="searchInput" placeholder="Search player">
-    </div>
+<section class="leaderboard">
+  <div class="row header">
+    <span>Rank</span>
+    <span>Name</span>
+    <span>Department</span>
+    <span>Year</span>
+    <span>Score</span>
+  </div>
+  <div id="leaderboardBody"></div>
+</section>
 
-    <div class="control-group">
-        <select id="courseFilter">
-            <option value="">All Courses</option>
-            <option value="Game Design">Game Design</option>
-            <option value="Animation">Animation</option>
-            <option value="Fine Arts">Fine Arts</option>
-        </select>
-    </div>
+<button id="addBtn" class="add-btn hidden">＋ Add Entry</button>
 
-    <div class="control-group">
-        <select id="yearFilter">
-            <option value="">All Years</option>
-            <option value="1st">1st</option>
-            <option value="2nd">2nd</option>
-            <option value="3rd">3rd</option>
-            <option value="4th">4th</option>
-        </select>
-    </div>
-</div>
+<!-- ADMIN PANEL -->
+<div id="playerModal" class="modal hidden">
+  <div class="modal-box">
+    <h2>Add Player</h2>
 
+    <input id="nameInput" placeholder="Name" />
 
-    <!-- LEADERBOARD -->
-    <div class="leaderboard glass" id="leaderboard">
+    <select id="deptInput">
+      <option value="">Select Department</option>
+      <option>Game Design</option>
+      <option>Animation</option>
+      <option>Interior Design</option>
+      <option>Fine Arts</option>
+      <option>Fashion Design</option>
+      <option>Faculty</option>
+    </select>
 
-        <div class="leaderboard-header">
-            <span>Rank</span>
-            <span>Player</span>
-            <span>Course</span>
-            <span>Year</span>
-            <span class="score-col">Score</span>
-        </div>
+    <select id="yearInput">
+      <option value="">Select Year</option>
+      <option>1st</option>
+      <option>2nd</option>
+      <option>3rd</option>
+      <option>4th</option>
+    </select>
 
-        <!-- ROWS -->
-        <div class="leaderboard-row gold">
-            <span class="rank">#1 🥇</span>
-            <span class="name">Vortex</span>
-            <span class="course">Game Design</span>
-            <span class="year">3rd</span>
-            <span class="score">10134</span>
-        </div>
+    <input id="scoreInput" type="number" placeholder="Score" />
 
-        <div class="leaderboard-row silver">
-            <span class="rank">#2 🥈</span>
-            <span class="name">N1ghtmare</span>
-            <span class="course">Animation</span>
-            <span class="year">2nd</span>
-            <span class="score">9532</span>
-        </div>
-
-        <div class="leaderboard-row bronze">
-            <span class="rank">#3 🥉</span>
-            <span class="name">Shadow</span>
-            <span class="course">Fine Arts</span>
-            <span class="year">1st</span>
-            <span class="score">9054</span>
-        </div>
-
-        <div class="leaderboard-row">
-            <span class="rank">#4</span>
-            <span class="name">Pixel</span>
-            <span class="course">Animation</span>
-            <span class="year">1st</span>
-            <span class="score">8400</span>
-        </div>
-
-    </div>
-
-    <footer>
-        <span id="lastUpdated">Last updated: --</span>
-    </footer>
-
+    <button id="saveBtn">Save</button>
+    <button id="cancelBtn">Cancel</button>
+  </div>
 </div>
 
 <script src="script.js"></script>
